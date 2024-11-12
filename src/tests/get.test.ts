@@ -148,7 +148,7 @@ test('should be able to reconnect to Redis if the server has disconnected', asyn
   const ret1 = await transporter.send(action1, connection)
 
   const redisClient = connection?.redisClient as ReturnType<typeof createClient>
-  await redisClient.quit()
+  await redisClient.disconnect()
 
   // Wait for the connection to expire which should trigger an attempt to
   // disconnect (and client.quit() under the hood) and then reconnect on
