@@ -9,7 +9,11 @@ export default async function disconnect(
   if (connection && connection.status === 'ok' && connection.redisClient) {
     debug('Disconnect Redis client if still open')
     if (connection.redisClient.isOpen) {
-      await connection.redisClient.quit()
+      try {
+        await connection.redisClient.quit()
+      } catch (error) {
+        debug('Failed to call redisClient.quit(), ignoring the error:', error)
+      }
     }
     connection.redisClient = null
   }
