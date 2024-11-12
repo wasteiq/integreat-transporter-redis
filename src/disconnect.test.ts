@@ -9,6 +9,7 @@ import disconnect from './disconnect.js'
 test('should call quit on redis client', async (t) => {
   const redisClient = {
     quit: sinon.stub().resolves(),
+    isOpen: true,
   }
   const connection = {
     status: 'ok',
@@ -18,6 +19,22 @@ test('should call quit on redis client', async (t) => {
   await disconnect(connection)
 
   t.is(redisClient.quit.callCount, 1)
+  t.is(connection.redisClient, null)
+})
+
+test('should not call quit on redis client when the client is already closed', async (t) => {
+  const redisClient = {
+    quit: sinon.stub().resolves(),
+    isOpen: false,
+  }
+  const connection = {
+    status: 'ok',
+    redisClient: redisClient,
+  } as unknown as Connection
+
+  await disconnect(connection)
+
+  t.is(redisClient.quit.callCount, 0)
   t.is(connection.redisClient, null)
 })
 
