@@ -1,15 +1,16 @@
 import ava, { TestFn } from 'ava'
 import { createClient } from 'redis'
 import transporter from '../index.js'
-import { setTimeout } from 'timers/promises'
+import FakeTimers from '@sinonjs/fake-timers'
 
-interface RedisContext {
+interface RedisAndClockContext {
   redisClient: ReturnType<typeof createClient>
+  clock: FakeTimers.InstalledClock
 }
 
 // Setup
 
-const test = ava as TestFn<RedisContext>
+const test = ava as TestFn<RedisAndClockContext>
 
 const redisData1 = [
   'title',
@@ -48,16 +49,19 @@ test.before(async (t) => {
   await redisClient.hSet('store:article:art1', redisData1)
   await redisClient.hSet('store:article:art2', redisData2)
   await redisClient.hSet('store:article:art3', redisData3)
-  t.context = { redisClient }
+  t.context = { redisClient, clock: FakeTimers.install({ toFake: ['Date'] }) }
 })
 
 test.after.always(async (t) => {
-  const { redisClient } = t.context
+  const { redisClient, clock } = t.context
   if (redisClient) {
     await redisClient.del('store:article:art1')
     await redisClient.del('store:article:art2')
     await redisClient.del('store:article:art3')
     await redisClient.quit()
+  }
+  if (clock) {
+    clock.uninstall()
   }
 })
 
@@ -104,7 +108,7 @@ test('should be able to reconnect to Redis if the server has disconnected', asyn
     redis: {
       uri: 'redis://localhost:6379',
     },
-    connectionTimeout: 5,
+    connectionTimeout: 1,
   }
   const action1 = {
     type: 'GET',
@@ -149,7 +153,8 @@ test('should be able to reconnect to Redis if the server has disconnected', asyn
   // Wait for the connection to expire which should trigger an attempt to
   // disconnect (and client.quit() under the hood) and then reconnect on
   // the next call to transporter.connect()
-  await setTimeout(options.connectionTimeout + 1)
+  t.context.clock.tick(options.connectionTimeout + 1)
+  t.context.clock.uninstall()
 
   // Call transporter.connect(), with the existing connection as a parameter,
   // to emulate the call to connection.connect() that happens in
