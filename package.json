@@ -42,7 +42,9 @@
   "devDependencies": {
     "@integreat/ts-dev-setup": "^5.0.4",
     "@types/debug": "^4.1.12",
+    "@types/dockerode": "^3.3.31",
     "@types/sinon": "^17.0.2",
+    "dockerode": "^4.0.2",
     "integreat": "^1.5.4",
     "sinon": "^17.0.1"
   }
