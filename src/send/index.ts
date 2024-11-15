@@ -60,6 +60,8 @@ export default async function send(
       return sendSet(client, generateIdFn, id, data, concurrency)
     case 'DELETE':
       return sendDel(client, generateIdFn, id, data)
+    case 'PING':
+      return await client.ping().then((data) => ({ status: 'ok', data }))
     default:
       return { status: 'badrequest', error: `Unknown action '${action.type}'` }
   }
