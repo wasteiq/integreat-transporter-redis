@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   redis:
     container_name: redis
@@ -7,3 +6,16 @@ services:
       - ./redisdata:/data
     ports:
       - '6379:6379'
+  reconnect-redis:
+    container_name: reconnect-redis
+    image: redis:6.2-alpine
+    volumes:
+      - ./redisdata:/data
+    command: --port 6380
+    ports:
+      - '6380:6380'
+    networks:
+      - reconnect
+
+networks:
+  reconnect:

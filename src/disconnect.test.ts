@@ -9,7 +9,7 @@ import disconnect from './disconnect.js'
 test('should call quit on redis client', async (t) => {
   const redisClient = {
     quit: sinon.stub().resolves(),
-    isOpen: true,
+    isReady: true,
   }
   const connection = {
     status: 'ok',
@@ -22,10 +22,10 @@ test('should call quit on redis client', async (t) => {
   t.is(connection.redisClient, null)
 })
 
-test('should handle that quit throws even though client reports isOpen', async (t) => {
+test('should handle that quit throws even though client reports isReady', async (t) => {
   const redisClient = {
     quit: sinon.stub().throws('Error'),
-    isOpen: true,
+    isReady: true,
   }
   const connection = {
     status: 'ok',
@@ -38,10 +38,10 @@ test('should handle that quit throws even though client reports isOpen', async (
   t.is(connection.redisClient, null)
 })
 
-test('should not call quit on redis client when the client is already closed', async (t) => {
+test('should not call quit on redis client when the client is already closed, aka. client.isReady == false', async (t) => {
   const redisClient = {
     quit: sinon.stub().resolves(),
-    isOpen: false,
+    isReady: false,
   }
   const connection = {
     status: 'ok',
