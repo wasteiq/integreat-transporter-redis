@@ -1,6 +1,5 @@
 import ava, { TestFn } from 'ava'
 import { createClient } from 'redis'
-
 import transporter from '../index.js'
 
 interface RedisContext {
@@ -43,12 +42,16 @@ const redisData3 = [
 ]
 
 test.before(async (t) => {
-  const redisClient = createClient()
-  await redisClient.connect()
-  await redisClient.hSet('store:article:art1', redisData1)
-  await redisClient.hSet('store:article:art2', redisData2)
-  await redisClient.hSet('store:article:art3', redisData3)
-  t.context = { redisClient }
+  try {
+    const redisClient = createClient()
+    await redisClient.connect()
+    await redisClient.hSet('store:article:art1', redisData1)
+    await redisClient.hSet('store:article:art2', redisData2)
+    await redisClient.hSet('store:article:art3', redisData3)
+    t.context = { redisClient }
+  } catch (error) {
+    console.error('Something went wrong:', error)
+  }
 })
 
 test.after.always(async (t) => {

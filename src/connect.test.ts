@@ -170,6 +170,7 @@ test('should reconnect when connection is expired', async (t) => {
   const clientWithQuit = {
     ...client,
     quit: sinon.stub().resolves(),
+    isReady: true,
   }
   const createClient = sinon.stub().returns(client)
   const options = { redis: { uri: 'redis://localhost:6379' } }
